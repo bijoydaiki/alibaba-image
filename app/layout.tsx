@@ -60,8 +60,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="referrer" content="no-referrer" />
-        <meta httpEquiv="Content-Security-Policy" content="img-src 'self' data: https: http:;" />
+        {/* <meta name="referrer" content="no-referrer" />
+        <meta httpEquiv="Content-Security-Policy" content="img-src 'self' data: https: http:;" /> */}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
