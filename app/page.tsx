@@ -70,7 +70,6 @@
 
 
 // pages/index.tsx or app/page.tsx
-
 "use client";
 
 import { JSX, useState } from "react";
@@ -88,7 +87,6 @@ interface ImageLoadStatus {
 
 export default function Home(): JSX.Element {
   const [imageLoadStatus, setImageLoadStatus] = useState<ImageLoadStatus>({});
-  const [useProxy, setUseProxy] = useState<boolean>(false);
 
   const handleImageLoad = (imageId: string): void => {
     setImageLoadStatus(prev => ({ ...prev, [imageId]: 'loaded' }));
@@ -123,13 +121,6 @@ export default function Home(): JSX.Element {
     }
   ];
 
-  const getImageSrc = (originalSrc: string): string => {
-    if (useProxy) {
-      return `/api/image-proxy?url=${encodeURIComponent(originalSrc)}`;
-    }
-    return originalSrc;
-  };
-
   const getStatusColor = (imageId: string): string => {
     const status = imageLoadStatus[imageId];
     if (status === 'loaded') return '#22c55e'; // green
@@ -153,14 +144,8 @@ export default function Home(): JSX.Element {
       fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       backgroundColor: "#f8fafc"
     }}>
-      <div style={{
-        maxWidth: "1200px",
-        margin: "0 auto"
-      }}>
-        <header style={{
-          textAlign: "center",
-          marginBottom: "3rem"
-        }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        <header style={{ textAlign: "center", marginBottom: "3rem" }}>
           <h1 style={{
             fontSize: "2.5rem",
             fontWeight: "bold",
@@ -174,41 +159,8 @@ export default function Home(): JSX.Element {
             color: "#64748b",
             marginBottom: "2rem"
           }}>
-            Testing different methods to load Alibaba CDN images
+            Testing direct loading of Alibaba CDN images
           </p>
-
-          {/* Toggle for proxy mode */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "1rem",
-            marginBottom: "2rem",
-            padding: "1rem",
-            backgroundColor: "white",
-            borderRadius: "8px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-          }}>
-            <label style={{ fontSize: "1rem", fontWeight: "500" }}>
-              <input
-                type="checkbox"
-                checked={useProxy}
-                onChange={(e) => {
-                  setUseProxy(e.target.checked);
-                  setImageLoadStatus({}); // Reset status when switching
-                }}
-                style={{ marginRight: "0.5rem" }}
-              />
-              Use Image Proxy API
-            </label>
-            <span style={{ 
-              fontSize: "0.875rem", 
-              color: "#64748b",
-              fontStyle: "italic"
-            }}>
-              {useProxy ? "Loading via proxy server" : "Loading directly from Alibaba CDN"}
-            </span>
-          </div>
         </header>
 
         <main>
@@ -219,7 +171,7 @@ export default function Home(): JSX.Element {
             marginBottom: "2rem"
           }}>
             {images.map((image) => (
-              <div key={`${image.id}-${useProxy}`} style={{
+              <div key={image.id} style={{
                 backgroundColor: "white",
                 borderRadius: "12px",
                 padding: "1.5rem",
@@ -238,8 +190,7 @@ export default function Home(): JSX.Element {
                   justifyContent: "center"
                 }}>
                   <img
-                    key={`${image.id}-${useProxy}`}
-                    src={getImageSrc(image.src)}
+                    src={image.src}
                     alt={image.alt}
                     onLoadStart={() => handleImageLoadStart(image.id)}
                     onLoad={() => handleImageLoad(image.id)}
@@ -286,23 +237,10 @@ export default function Home(): JSX.Element {
                 }}>
                   {getStatusText(image.id)}
                 </div>
-
-                <div style={{
-                  fontSize: "0.75rem",
-                  color: "#64748b",
-                  fontFamily: "monospace",
-                  wordBreak: "break-all",
-                  padding: "0.5rem",
-                  backgroundColor: "#f8fafc",
-                  borderRadius: "4px"
-                }}>
-                  {useProxy ? 'Via Proxy' : 'Direct CDN'}
-                </div>
               </div>
             ))}
           </div>
 
-          {/* Debug Information */}
           <div style={{
             backgroundColor: "white",
             borderRadius: "12px",
@@ -327,32 +265,10 @@ export default function Home(): JSX.Element {
               color: "#475569",
               marginBottom: "1rem"
             }}>
-              <div style={{ marginBottom: "0.5rem" }}>
-                <strong>Current Mode:</strong> {useProxy ? 'Proxy API' : 'Direct CDN'}
-              </div>
-              <div style={{ marginBottom: "0.5rem" }}>
-                <strong>Image Load Status:</strong>
-              </div>
+              <div><strong>Image Load Status:</strong></div>
               <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
                 {JSON.stringify(imageLoadStatus, null, 2)}
               </pre>
-            </div>
-
-            <div style={{
-              padding: "1rem",
-              backgroundColor: "#dbeafe",
-              borderRadius: "8px",
-              fontSize: "0.875rem",
-              color: "#1e40af"
-            }}>
-              <strong>🔧 Troubleshooting Steps:</strong>
-              <ol style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
-                <li>First, try the direct CDN method (proxy disabled)</li>
-                <li>If images don't load, enable the "Use Image Proxy API" option</li>
-                <li>Make sure you've created the API route: <code>pages/api/image-proxy.ts</code></li>
-                <li>Check browser console for CORS or network errors</li>
-                <li>Verify the Next.js config includes proper headers</li>
-              </ol>
             </div>
           </div>
         </main>
