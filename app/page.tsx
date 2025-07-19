@@ -117,7 +117,7 @@ export default function Home(): JSX.Element {
     },
     {
       id: 'image3',
-      src: "https://cbu01.alicdn.com/img/ibank/O1CN01Abc123XPZdSampleImg_!!2834542916-0-cib.jpg",
+      src: "https://cbu01.alicdn.com/img/ibank/O1CN01nN6X4B1XPZdHolOR2_!!2834542916-0-cib.jpg",
       alt: "Alibaba Product Image 3", 
       label: "Product Image 3"
     }
