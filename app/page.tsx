@@ -83,11 +83,12 @@ interface ImageData {
 }
 
 interface ImageLoadStatus {
-  [key: string]: 'loaded' | 'error' | undefined;
+  [key: string]: 'loaded' | 'error' | 'loading';
 }
 
 export default function Home(): JSX.Element {
   const [imageLoadStatus, setImageLoadStatus] = useState<ImageLoadStatus>({});
+  const [useProxy, setUseProxy] = useState<boolean>(false);
 
   const handleImageLoad = (imageId: string): void => {
     setImageLoadStatus(prev => ({ ...prev, [imageId]: 'loaded' }));
@@ -95,6 +96,10 @@ export default function Home(): JSX.Element {
 
   const handleImageError = (imageId: string): void => {
     setImageLoadStatus(prev => ({ ...prev, [imageId]: 'error' }));
+  };
+
+  const handleImageLoadStart = (imageId: string): void => {
+    setImageLoadStatus(prev => ({ ...prev, [imageId]: 'loading' }));
   };
 
   const images: ImageData[] = [
@@ -112,24 +117,33 @@ export default function Home(): JSX.Element {
     },
     {
       id: 'image3',
-      src: "https://cbu01.alicdn.com/img/ibank/O1CN01nN6X4B1XPZdHolOR2_!!2834542916-0-cib.jpg",
+      src: "https://cbu01.alicdn.com/img/ibank/O1CN01Abc123XPZdSampleImg_!!2834542916-0-cib.jpg",
       alt: "Alibaba Product Image 3", 
       label: "Product Image 3"
     }
   ];
 
+  const getImageSrc = (originalSrc: string): string => {
+    if (useProxy) {
+      return `/api/image-proxy?url=${encodeURIComponent(originalSrc)}`;
+    }
+    return originalSrc;
+  };
+
   const getStatusColor = (imageId: string): string => {
     const status = imageLoadStatus[imageId];
-    if (status === 'loaded') return 'rgb(34, 197, 94)'; // green
-    if (status === 'error') return 'rgb(239, 68, 68)'; // red
-    return 'rgb(156, 163, 175)'; // gray (loading)
+    if (status === 'loaded') return '#22c55e'; // green
+    if (status === 'error') return '#ef4444'; // red
+    if (status === 'loading') return '#f59e0b'; // yellow
+    return '#9ca3af'; // gray (initial)
   };
 
   const getStatusText = (imageId: string): string => {
     const status = imageLoadStatus[imageId];
-    if (status === 'loaded') return 'Image Loaded Successfully';
-    if (status === 'error') return 'Image Failed to Load';
-    return 'Loading...';
+    if (status === 'loaded') return '✅ Loaded Successfully';
+    if (status === 'error') return '❌ Failed to Load';
+    if (status === 'loading') return '⏳ Loading...';
+    return '⚪ Not Started';
   };
 
   return (
@@ -153,14 +167,48 @@ export default function Home(): JSX.Element {
             color: "#1e293b",
             marginBottom: "1rem"
           }}>
-            Image Loading Test
+            Alibaba Image Loading Test
           </h1>
           <p style={{
             fontSize: "1.1rem",
-            color: "#64748b"
+            color: "#64748b",
+            marginBottom: "2rem"
           }}>
-            Testing Alibaba CDN images with error handling
+            Testing different methods to load Alibaba CDN images
           </p>
+
+          {/* Toggle for proxy mode */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "1rem",
+            marginBottom: "2rem",
+            padding: "1rem",
+            backgroundColor: "white",
+            borderRadius: "8px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            <label style={{ fontSize: "1rem", fontWeight: "500" }}>
+              <input
+                type="checkbox"
+                checked={useProxy}
+                onChange={(e) => {
+                  setUseProxy(e.target.checked);
+                  setImageLoadStatus({}); // Reset status when switching
+                }}
+                style={{ marginRight: "0.5rem" }}
+              />
+              Use Image Proxy API
+            </label>
+            <span style={{ 
+              fontSize: "0.875rem", 
+              color: "#64748b",
+              fontStyle: "italic"
+            }}>
+              {useProxy ? "Loading via proxy server" : "Loading directly from Alibaba CDN"}
+            </span>
+          </div>
         </header>
 
         <main>
@@ -171,7 +219,7 @@ export default function Home(): JSX.Element {
             marginBottom: "2rem"
           }}>
             {images.map((image) => (
-              <div key={image.id} style={{
+              <div key={`${image.id}-${useProxy}`} style={{
                 backgroundColor: "white",
                 borderRadius: "12px",
                 padding: "1.5rem",
@@ -183,20 +231,38 @@ export default function Home(): JSX.Element {
                   marginBottom: "1rem",
                   backgroundColor: "#f1f5f9",
                   borderRadius: "8px",
-                  overflow: "hidden"
+                  overflow: "hidden",
+                  minHeight: "300px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
                 }}>
                   <img
-                    src={image.src}
+                    key={`${image.id}-${useProxy}`}
+                    src={getImageSrc(image.src)}
                     alt={image.alt}
+                    onLoadStart={() => handleImageLoadStart(image.id)}
                     onLoad={() => handleImageLoad(image.id)}
                     onError={() => handleImageError(image.id)}
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     style={{
                       width: "100%",
                       height: "300px",
                       objectFit: "cover",
-                      display: "block"
+                      display: imageLoadStatus[image.id] === 'error' ? 'none' : 'block'
                     }}
                   />
+                  {imageLoadStatus[image.id] === 'error' && (
+                    <div style={{
+                      padding: "2rem",
+                      color: "#64748b",
+                      textAlign: "center"
+                    }}>
+                      <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🖼️</div>
+                      <div>Image failed to load</div>
+                    </div>
+                  )}
                 </div>
                 
                 <h3 style={{
@@ -215,9 +281,22 @@ export default function Home(): JSX.Element {
                   fontSize: "0.875rem",
                   fontWeight: "500",
                   color: "white",
-                  backgroundColor: getStatusColor(image.id)
+                  backgroundColor: getStatusColor(image.id),
+                  marginBottom: "0.5rem"
                 }}>
                   {getStatusText(image.id)}
+                </div>
+
+                <div style={{
+                  fontSize: "0.75rem",
+                  color: "#64748b",
+                  fontFamily: "monospace",
+                  wordBreak: "break-all",
+                  padding: "0.5rem",
+                  backgroundColor: "#f8fafc",
+                  borderRadius: "4px"
+                }}>
+                  {useProxy ? 'Via Proxy' : 'Direct CDN'}
                 </div>
               </div>
             ))}
@@ -245,8 +324,12 @@ export default function Home(): JSX.Element {
               borderRadius: "8px",
               fontFamily: "monospace",
               fontSize: "0.875rem",
-              color: "#475569"
+              color: "#475569",
+              marginBottom: "1rem"
             }}>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <strong>Current Mode:</strong> {useProxy ? 'Proxy API' : 'Direct CDN'}
+              </div>
               <div style={{ marginBottom: "0.5rem" }}>
                 <strong>Image Load Status:</strong>
               </div>
@@ -256,19 +339,20 @@ export default function Home(): JSX.Element {
             </div>
 
             <div style={{
-              marginTop: "1rem",
               padding: "1rem",
-              backgroundColor: "#fef3c7",
+              backgroundColor: "#dbeafe",
               borderRadius: "8px",
               fontSize: "0.875rem",
-              color: "#92400e"
+              color: "#1e40af"
             }}>
-              <strong>💡 Tips:</strong>
-              <ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
-                <li>If images show locally but not in production, check your deployment platform's image optimization settings</li>
-                <li>Consider using a CDN or image proxy service for external images</li>
-                <li>Regular img tags work better for external domains than Next.js Image component</li>
-              </ul>
+              <strong>🔧 Troubleshooting Steps:</strong>
+              <ol style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
+                <li>First, try the direct CDN method (proxy disabled)</li>
+                <li>If images don't load, enable the "Use Image Proxy API" option</li>
+                <li>Make sure you've created the API route: <code>pages/api/image-proxy.ts</code></li>
+                <li>Check browser console for CORS or network errors</li>
+                <li>Verify the Next.js config includes proper headers</li>
+              </ol>
             </div>
           </div>
         </main>
