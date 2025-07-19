@@ -29,7 +29,7 @@
 
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: import('next').NextConfig = {
   // Modern Next.js image configuration
   images: {
     remotePatterns: [

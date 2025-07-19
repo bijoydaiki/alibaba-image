@@ -68,63 +68,68 @@
 // }
 
 
+
+// pages/index.tsx or app/page.tsx
+
 "use client";
 
-import { useState } from "react";
+import { JSX, useState } from "react";
 
-type ImageStatus = "loaded" | "error" | undefined;
-
-type ImageData = {
+interface ImageData {
   id: string;
   src: string;
   alt: string;
   label: string;
-};
+}
 
-export default function Home() {
-  const [imageLoadStatus, setImageLoadStatus] = useState<Record<string, ImageStatus>>({});
+interface ImageLoadStatus {
+  [key: string]: 'loaded' | 'error' | undefined;
+}
 
-  const handleImageLoad = (imageId: string) => {
-    setImageLoadStatus((prev) => ({ ...prev, [imageId]: "loaded" }));
+export default function Home(): JSX.Element {
+  const [imageLoadStatus, setImageLoadStatus] = useState<ImageLoadStatus>({});
+
+  const handleImageLoad = (imageId: string): void => {
+    setImageLoadStatus(prev => ({ ...prev, [imageId]: 'loaded' }));
   };
 
-  const handleImageError = (imageId: string) => {
-    setImageLoadStatus((prev) => ({ ...prev, [imageId]: "error" }));
+  const handleImageError = (imageId: string): void => {
+    setImageLoadStatus(prev => ({ ...prev, [imageId]: 'error' }));
   };
 
   const images: ImageData[] = [
     {
-      id: "image1",
+      id: 'image1',
       src: "https://cbu01.alicdn.com/img/ibank/O1CN016wStBp1XPZdLIJeNv_!!2834542916-0-cib.jpg",
       alt: "Alibaba Product Image 1",
-      label: "Product Image 1",
+      label: "Product Image 1"
     },
     {
-      id: "image2",
+      id: 'image2', 
       src: "https://cbu01.alicdn.com/img/ibank/O1CN01nN6X4B1XPZdHolOR2_!!2834542916-0-cib.jpg",
       alt: "Alibaba Product Image 2",
-      label: "Product Image 2",
+      label: "Product Image 2"
     },
     {
-      id: "image3",
+      id: 'image3',
       src: "https://cbu01.alicdn.com/img/ibank/O1CN01nN6X4B1XPZdHolOR2_!!2834542916-0-cib.jpg",
-      alt: "Alibaba Product Image 3",
-      label: "Product Image 3",
-    },
+      alt: "Alibaba Product Image 3", 
+      label: "Product Image 3"
+    }
   ];
 
   const getStatusColor = (imageId: string): string => {
     const status = imageLoadStatus[imageId];
-    if (status === "loaded") return "rgb(34, 197, 94)";
-    if (status === "error") return "rgb(239, 68, 68)";
-    return "rgb(156, 163, 175)";
+    if (status === 'loaded') return 'rgb(34, 197, 94)'; // green
+    if (status === 'error') return 'rgb(239, 68, 68)'; // red
+    return 'rgb(156, 163, 175)'; // gray (loading)
   };
 
   const getStatusText = (imageId: string): string => {
     const status = imageLoadStatus[imageId];
-    if (status === "loaded") return "Image Loaded Successfully";
-    if (status === "error") return "Image Failed to Load";
-    return "Loading...";
+    if (status === 'loaded') return 'Image Loaded Successfully';
+    if (status === 'error') return 'Image Failed to Load';
+    return 'Loading...';
   };
 
   return (
@@ -134,8 +139,14 @@ export default function Home() {
       fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       backgroundColor: "#f8fafc"
     }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <header style={{ textAlign: "center", marginBottom: "3rem" }}>
+      <div style={{
+        maxWidth: "1200px",
+        margin: "0 auto"
+      }}>
+        <header style={{
+          textAlign: "center",
+          marginBottom: "3rem"
+        }}>
           <h1 style={{
             fontSize: "2.5rem",
             fontWeight: "bold",
@@ -144,7 +155,10 @@ export default function Home() {
           }}>
             Image Loading Test
           </h1>
-          <p style={{ fontSize: "1.1rem", color: "#64748b" }}>
+          <p style={{
+            fontSize: "1.1rem",
+            color: "#64748b"
+          }}>
             Testing Alibaba CDN images with error handling
           </p>
         </header>
@@ -184,7 +198,7 @@ export default function Home() {
                     }}
                   />
                 </div>
-
+                
                 <h3 style={{
                   fontSize: "1.2rem",
                   fontWeight: "600",
@@ -193,7 +207,7 @@ export default function Home() {
                 }}>
                   {image.label}
                 </h3>
-
+                
                 <div style={{
                   display: "inline-block",
                   padding: "0.5rem 1rem",
@@ -209,7 +223,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Debug Info */}
+          {/* Debug Information */}
           <div style={{
             backgroundColor: "white",
             borderRadius: "12px",
@@ -224,7 +238,7 @@ export default function Home() {
             }}>
               Debug Information
             </h2>
-
+            
             <div style={{
               backgroundColor: "#f8fafc",
               padding: "1rem",
@@ -233,10 +247,28 @@ export default function Home() {
               fontSize: "0.875rem",
               color: "#475569"
             }}>
-              <strong>Image Load Status:</strong>
-              <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <strong>Image Load Status:</strong>
+              </div>
+              <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
                 {JSON.stringify(imageLoadStatus, null, 2)}
               </pre>
+            </div>
+
+            <div style={{
+              marginTop: "1rem",
+              padding: "1rem",
+              backgroundColor: "#fef3c7",
+              borderRadius: "8px",
+              fontSize: "0.875rem",
+              color: "#92400e"
+            }}>
+              <strong>💡 Tips:</strong>
+              <ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
+                <li>If images show locally but not in production, check your deployment platform's image optimization settings</li>
+                <li>Consider using a CDN or image proxy service for external images</li>
+                <li>Regular img tags work better for external domains than Next.js Image component</li>
+              </ul>
             </div>
           </div>
         </main>
