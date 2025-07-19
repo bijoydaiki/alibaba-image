@@ -13,6 +13,7 @@
 const nextConfig = {
   images: {
     domains: ['cbu01.alicdn.com'], // ✅ allow Alibaba CDN
+    unoptimized: true,
   },
 };
 

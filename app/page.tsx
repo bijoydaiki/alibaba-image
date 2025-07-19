@@ -37,11 +37,21 @@ export default function Home() {
               alt="Alibaba Image 1"
               width={500}
               height={500}
+              unoptimized
             />
             <span style={{ marginTop: "8px", fontWeight: "bold", backgroundColor: 'rgb(233, 69, 96)', padding: '5px', borderRadius: '5px' }}>Image Show in Tizaraa</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Image
+              src="https://cbu01.alicdn.com/img/ibank/O1CN01nN6X4B1XPZdHolOR2_!!2834542916-0-cib.jpg"
+              alt="Alibaba Image 2"
+              width={500}
+              height={500}
+            />
+            <span style={{ marginTop: "8px", fontWeight: "bold", backgroundColor: 'rgb(233, 69, 96)', padding: '5px', borderRadius: '5px' }}>Image Not Show in Tizaraa</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <img
               src="https://cbu01.alicdn.com/img/ibank/O1CN01nN6X4B1XPZdHolOR2_!!2834542916-0-cib.jpg"
               alt="Alibaba Image 2"
               width={500}
