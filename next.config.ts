@@ -10,14 +10,18 @@
 
 
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
+  reactStrictMode: false,
+  compiler: {
+    styledComponents: true,
+  },
+  publicRuntimeConfig: {
+    // Available on both server and client
+    theme: "DEFAULT",
+  },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'cbu01.alicdn.com',
-      },
-    ],
+    domains: ['cbu01.alicdn.com'],  // Add the domain here
     unoptimized: true,
   },
 };
